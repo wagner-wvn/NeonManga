@@ -1,31 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Hero from "./components/Hero";
 import MangaGrid from "./components/MangaGrid";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
 export default function Home() {
-  const [results, setResults] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [recent, setRecent] = useState<any[]>([]);
+  const [popular, setPopular] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const searchManga = async (title: string) => {
-    if (!title) return;
-    setLoading(true);
+  const fetchMangaLists = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/manga");
+      const data = await res.json();
 
-    const res = await fetch(`/api/manga?title=${title}&includes[]=cover_art`);
-    const data = await res.json();
-
-    setResults(data.data || []);
-    setLoading(false);
+      setRecent(data.recent?.data || []);
+      setPopular(data.popular?.data || []);
+    } catch (err) {
+      console.error("Erro ao carregar mangás:", err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchMangaLists();
+  }, []);
 
   return (
     <main className="bg-black text-white min-h-screen">
       <Navbar />
-      <Hero onSearch={searchManga} />
-      {loading ? <p className="text-center mt-6">Carregando...</p> : <MangaGrid results={results} />}
+      <Hero onSearch={() => {}} />
+
+      {loading ? (
+        <p className="text-center mt-6">Carregando...</p>
+      ) : (
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Seção Mais Recentes */}
+          <h2 className="text-xl font-bold mt-10 mb-4">📖 Mais Recentes</h2>
+          <MangaGrid results={recent} />
+
+          {/* Seção Populares */}
+          <h2 className="text-xl font-bold mt-10 mb-4">🔥 Populares</h2>
+          <MangaGrid results={popular} />
+        </div>
+      )}
+
       <Footer />
     </main>
   );
