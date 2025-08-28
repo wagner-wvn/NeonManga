@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    const url = `https://api.mangadex.org/manga?title=${encodeURIComponent(title)}&includes[]=cover_art&limit=20&availableTranslatedLanguage[]=pt-br&hasAvailableChapters=true&status[]=ongoing&status[]=completed&contentRating[]=safe&contentRating[]=suggestive&order[latestUploadedChapter]=desc`;
+    const url = `https://api.mangadex.org/manga?title=${encodeURIComponent(title)}&includes[]=cover_art&limit=20&availableTranslatedLanguage[]=pt-br&hasAvailableChapters=true&status[]=ongoing&status[]=completed&order[latestUploadedChapter]=desc`;
 
 
     const res = await fetch(url);
