@@ -7,9 +7,9 @@ export async function GET(
   const mangaId = params.id;
 
   try {
-    const response = await fetch(
-      `https://api.mangadex.org/manga/${mangaId}/feed?translatedLanguage[]=en&order[chapter]=asc&limit=50`
-    );
+    // Busca capítulos com PT-BR e EN
+    const feedUrl = `https://api.mangadex.org/manga/${mangaId}/feed?translatedLanguage[]=pt-br&translatedLanguage[]=en&order[chapter]=asc&limit=100`;
+    const response = await fetch(feedUrl);
 
     if (!response.ok) {
       return NextResponse.json(
@@ -19,32 +19,38 @@ export async function GET(
     }
 
     const data = await response.json();
-
-    // Filtrar apenas capítulos que realmente têm páginas
     const chapters = data.data;
-    const validChapters: any[] = [];
 
-    // ⚠️ Importante: Promise.all pra acelerar requisições
-    await Promise.all(
-      chapters.map(async (ch: any) => {
-        try {
-          const check = await fetch(
-            `https://api.mangadex.org/at-home/server/${ch.id}`
-          );
-          const checkData = await check.json();
+    const chapterMap = new Map<string, any>();
 
-          if (checkData?.chapter?.data?.length > 0) {
-            validChapters.push(ch);
-          }
-        } catch (e) {
-          console.error(`Erro ao verificar capítulo ${ch.id}`, e);
+    // Filtra duplicados e escolhe idioma PT-BR se disponível
+    chapters.forEach((ch: any) => {
+      const chapterNum = ch.attributes.chapter || "0";
+      const existing = chapterMap.get(chapterNum);
+
+      if (!existing) {
+        chapterMap.set(chapterNum, ch);
+      } else {
+        // Se já existe, prioriza PT-BR
+        if (
+          existing.attributes.translatedLanguage !== "pt-br" &&
+          ch.attributes.translatedLanguage === "pt-br"
+        ) {
+          chapterMap.set(chapterNum, ch);
         }
-      })
-    );
+      }
+    });
+
+    // Converte para array e ordena numericamente
+    const validChapters = Array.from(chapterMap.values()).sort((a, b) => {
+      const aNum = parseFloat(a.attributes.chapter || "0");
+      const bNum = parseFloat(b.attributes.chapter || "0");
+      return aNum - bNum;
+    });
 
     return NextResponse.json({ data: validChapters });
   } catch (error) {
-    console.error(error);
+    console.error("Erro ao buscar capítulos:", error);
     return NextResponse.json(
       { error: "Erro interno ao buscar capítulos" },
       { status: 500 }

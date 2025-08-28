@@ -11,64 +11,123 @@ interface Chapter {
   };
 }
 
+interface Manga {
+  id: string;
+  attributes: {
+    title: { en?: string; ja?: string };
+    description: { en?: string };
+    tags: { attributes: { name: { en?: string } } }[];
+  };
+  relationships: any[];
+}
+
 export default function MangaDetails() {
-  const { id } = useParams(); // ID do mangá
+  const { id } = useParams();
   const router = useRouter();
   const [chapters, setChapters] = useState<Chapter[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [manga, setManga] = useState<Manga | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
 
-    const fetchChapters = async () => {
+    const fetchData = async () => {
       setLoading(true);
-      try {
-        // Buscar capítulos em português via endpoint
-        const res = await fetch(`/api/chapters/${id}`);
-        const data = await res.json();
 
-        // data.data contém a lista de capítulos do feed
-        setChapters(data.data || []);
+      try {
+        // 1️⃣ Buscar dados do mangá
+        const resManga = await fetch(`/api/manga/${id}`);
+        const mangaData = await resManga.json();
+        setManga(mangaData.data);
+
+        // 2️⃣ Buscar capítulos
+        const resChapters = await fetch(`/api/chapters/${id}`);
+        const chaptersData = await resChapters.json();
+        setChapters(chaptersData.data || []);
       } catch (err) {
-        console.error("Erro ao buscar capítulos:", err);
-        setChapters([]);
+        console.error("Erro ao buscar mangá ou capítulos:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchChapters();
+    fetchData();
   }, [id]);
 
+  const coverRel = manga?.relationships?.find(
+    (rel: any) => rel.type === "cover_art"
+  );
+  const coverFileName = coverRel?.attributes?.fileName;
+  const title =
+    manga?.attributes?.title?.en ||
+    manga?.attributes?.title?.ja ||
+    "Sem título";
+  const description = manga?.attributes?.description?.en || "Sem descrição";
+
   return (
-    <main className="flex flex-col items-center p-6">
-      <h1 className="text-2xl font-bold mb-4">📖 Detalhes do Mangá</h1>
+    <main className="p-6 max-w-6xl mx-auto text-white">
+      {loading ? (
+        <p className="text-center">Carregando...</p>
+      ) : (
+        <>
+          {/* Capa e info do mangá */}
+          <div className="flex flex-col md:flex-row gap-6 mb-8">
+            {coverFileName ? (
+              <img
+                src={`https://uploads.mangadex.org/covers/${manga?.id}/${coverFileName}.512.jpg`}
+                alt={title}
+                className="w-48 md:w-64 h-auto rounded-lg shadow-lg"
+              />
+            ) : (
+              <div className="w-48 md:w-64 h-64 bg-purple-900 flex items-center justify-center text-gray-400 rounded-lg">
+                Sem capa
+              </div>
+            )}
 
-      {loading && <p>Carregando capítulos...</p>}
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold mb-4">{title}</h1>
+              <p className="mb-4 text-gray-300 line-clamp-6">{description}</p>
+              <div className="flex flex-wrap gap-2">
+                {manga?.attributes?.tags.map((tag: any) => (
+                  <span
+                    key={tag.attributes.name.en}
+                    className="bg-purple-700 text-white px-3 py-1 rounded-full text-sm"
+                  >
+                    {tag.attributes.name.en}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
 
-      {!loading && chapters.length === 0 && (
-        <p>Nenhum capítulo disponível em português.</p>
+          {/* Lista de capítulos */}
+          <div>
+            <h2 className="text-2xl font-bold mb-4">📖 Capítulos</h2>
+            {chapters.length === 0 && (
+              <p className="text-gray-400">Nenhum capítulo disponível.</p>
+            )}
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {chapters.map((ch) => (
+                <li
+                  key={ch.id}
+                  className="p-3 border rounded flex justify-between items-center hover:bg-purple-800 transition"
+                >
+                  <span>
+                    Capítulo {ch.attributes.chapter || "?"} -{" "}
+                    {ch.attributes.title || "Sem título"}
+                  </span>
+                  <button
+                    onClick={() => router.push(`/reader/${ch.id}`)}
+                    className="bg-purple-600 text-white px-3 py-1 rounded"
+                  >
+                    Ler
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
       )}
-
-      <ul className="space-y-2 w-full max-w-lg">
-        {chapters.map((ch) => (
-          <li
-            key={ch.id}
-            className="p-2 border rounded flex justify-between items-center"
-          >
-            <span>
-              Capítulo {ch.attributes.chapter || "?"} -{" "}
-              {ch.attributes.title || "Sem título"}
-            </span>
-            <button
-              onClick={() => router.push(`/reader/${ch.id}`)}
-              className="bg-purple-600 text-white px-3 py-1 rounded"
-            >
-              Ler
-            </button>
-          </li>
-        ))}
-      </ul>
     </main>
   );
 }

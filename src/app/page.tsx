@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import Hero from "./components/Hero";
 import MangaGrid from "./components/MangaGrid";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
 
 export default function Home() {
   const [recent, setRecent] = useState<any[]>([]);
@@ -32,24 +30,21 @@ export default function Home() {
 
   return (
     <main className="bg-black text-white min-h-screen">
-      <Navbar />
       <Hero onSearch={() => {}} />
 
       {loading ? (
         <p className="text-center mt-6">Carregando...</p>
       ) : (
         <div className="max-w-6xl mx-auto px-4">
-          {/* Seção Mais Recentes */}
+          {/* Mais Recentes */}
           <h2 className="text-xl font-bold mt-10 mb-4">📖 Mais Recentes</h2>
           <MangaGrid results={recent} />
 
-          {/* Seção Populares */}
+          {/* Populares */}
           <h2 className="text-xl font-bold mt-10 mb-4">🔥 Populares</h2>
           <MangaGrid results={popular} />
         </div>
       )}
-
-      <Footer />
     </main>
   );
 }
