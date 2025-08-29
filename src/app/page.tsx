@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Hero from "./components/Hero";
-import MangaGrid from "./components/MangaGrid";
+import MangaCarousel from "./components/MangaCarousel";
 
 export default function Home() {
   const [recent, setRecent] = useState<any[]>([]);
@@ -15,10 +15,13 @@ export default function Home() {
       const res = await fetch("/api/manga");
       const data = await res.json();
 
+      // Seu endpoint /api/manga retorna { recent, popular }
       setRecent(data.recent?.data || []);
       setPopular(data.popular?.data || []);
     } catch (err) {
       console.error("Erro ao carregar mangás:", err);
+      setRecent([]);
+      setPopular([]);
     } finally {
       setLoading(false);
     }
@@ -30,21 +33,34 @@ export default function Home() {
 
   return (
     <main className="bg-black text-white min-h-screen">
-      <Hero onSearch={() => {}} />
+      {/* Se o seu Hero precisa de onSearch, mantemos a prop vazia */}
+      <Hero />
 
-      {loading ? (
-        <p className="text-center mt-6">Carregando...</p>
-      ) : (
-        <div className="max-w-6xl mx-auto px-4">
-          {/* Mais Recentes */}
-          <h2 className="text-xl font-bold mt-10 mb-4">📖 Mais Recentes</h2>
-          <MangaGrid results={recent} />
+      <div className="max-w-7xl mx-auto px-4 pb-12">
+        {/* Mais Recentes */}
+        <section className="mt-10">
+          <h2 className="text-xl font-bold mb-4">📖 Mais Recentes</h2>
+          {loading ? (
+            <p className="text-center">Carregando...</p>
+          ) : recent.length ? (
+            <MangaCarousel results={recent} />
+          ) : (
+            <p className="text-sm text-gray-400">Nada por aqui ainda.</p>
+          )}
+        </section>
 
-          {/* Populares */}
-          <h2 className="text-xl font-bold mt-10 mb-4">🔥 Populares</h2>
-          <MangaGrid results={popular} />
-        </div>
-      )}
+        {/* Populares */}
+        <section className="mt-10">
+          <h2 className="text-xl font-bold mb-4">🔥 Populares</h2>
+          {loading ? (
+            <p className="text-center">Carregando...</p>
+          ) : popular.length ? (
+            <MangaCarousel results={popular} />
+          ) : (
+            <p className="text-sm text-gray-400">Nada por aqui ainda.</p>
+          )}
+        </section>
+      </div>
     </main>
   );
 }

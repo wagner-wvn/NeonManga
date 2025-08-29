@@ -1,33 +1,31 @@
 "use client";
+import { useRouter } from "next/navigation";
 
-import { useState } from "react";
-
-interface HeroProps {
-  onSearch: (title: string) => void;
-}
-
-export default function Hero({ onSearch }: HeroProps) {
-  const [title, setTitle] = useState("");
+export default function Hero() {
+  const router = useRouter();
 
   return (
-    <section className="w-full flex flex-col items-center py-10 bg-gradient-to-b from-black via-purple-950 to-black text-white">
-      <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-neon-glow">🔮 Encontre seu mangá</h2>
+    <div className="relative h-[500px] bg-[url('/hero-bg.jpg')] bg-cover bg-center flex items-center">
+      <div className="bg-black/60 absolute inset-0"></div>
 
-      <div className="flex gap-2 w-full max-w-md">
-        <input
-          type="text"
-          placeholder="Buscar mangá..."
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 p-3 rounded-md border border-purple-600 bg-[#1a0b2c] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
-        />
-        <button
-          onClick={() => onSearch(title)}
-          className="bg-pink-500 px-5 py-3 rounded-md hover:bg-pink-600 transition-colors"
-        >
-          Buscar
-        </button>
+      <div className="relative z-10 px-12 max-w-2xl">
+        <h1 className="text-5xl font-bold mb-4">Naruto</h1>
+        <p className="mb-6 text-lg">
+          Um jovem ninja determinado a conquistar reconhecimento e sonha em se
+          tornar Hokage, o líder de sua vila.
+        </p>
+        <div className="flex gap-4">
+          <button
+            onClick={() => router.push("/manga/naruto-id")}
+            className="bg-yellow-500 hover:bg-yellow-600 px-6 py-3 rounded-lg font-semibold"
+          >
+            Ler
+          </button>
+          <button className="bg-gray-800 hover:bg-gray-700 px-6 py-3 rounded-lg font-semibold">
+            Ver Detalhes
+          </button>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
