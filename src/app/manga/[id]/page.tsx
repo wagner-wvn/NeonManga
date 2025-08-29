@@ -35,12 +35,12 @@ export default function MangaDetails() {
       setLoading(true);
 
       try {
-        // 1️⃣ Buscar dados do mangá
+        // Buscar dados do mangá
         const resManga = await fetch(`/api/manga/${id}`);
         const mangaData = await resManga.json();
         setManga(mangaData.data);
 
-        // 2️⃣ Buscar capítulos
+        // Buscar capítulos
         const resChapters = await fetch(`/api/chapters/${id}`);
         const chaptersData = await resChapters.json();
         setChapters(chaptersData.data || []);

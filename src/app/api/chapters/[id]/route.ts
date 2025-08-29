@@ -8,7 +8,7 @@ export async function GET(
 
   try {
     // Busca capítulos com PT-BR e EN
-    const feedUrl = `https://api.mangadex.org/manga/${mangaId}/feed?translatedLanguage[]=pt-br&translatedLanguage[]=en&order[chapter]=asc&limit=100`;
+    const feedUrl = `https://api.mangadex.org/manga/${mangaId}/feed?translatedLanguage[]=pt-br&translatedLanguage[]=en&order[chapter]=asc&limit=100&includeEmptyPages=0`;
     const response = await fetch(feedUrl);
 
     if (!response.ok) {

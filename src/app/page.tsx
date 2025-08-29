@@ -31,18 +31,25 @@ export default function Home() {
     fetchMangaLists();
   }, []);
 
+  // 🔹 Loading Fullscreen
+  if (loading) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center bg-black">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  // 🔹 Quando já tiver carregado
   return (
     <main className="bg-black text-white min-h-screen">
-      {/* Se o seu Hero precisa de onSearch, mantemos a prop vazia */}
       <Hero />
 
       <div className="max-w-7xl mx-auto px-4 pb-12">
         {/* Mais Recentes */}
         <section className="mt-10">
           <h2 className="text-xl font-bold mb-4">📖 Mais Recentes</h2>
-          {loading ? (
-            <p className="text-center">Carregando...</p>
-          ) : recent.length ? (
+          {recent.length ? (
             <MangaCarousel results={recent} />
           ) : (
             <p className="text-sm text-gray-400">Nada por aqui ainda.</p>
@@ -52,9 +59,7 @@ export default function Home() {
         {/* Populares */}
         <section className="mt-10">
           <h2 className="text-xl font-bold mb-4">🔥 Populares</h2>
-          {loading ? (
-            <p className="text-center">Carregando...</p>
-          ) : popular.length ? (
+          {popular.length ? (
             <MangaCarousel results={popular} />
           ) : (
             <p className="text-sm text-gray-400">Nada por aqui ainda.</p>

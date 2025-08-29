@@ -23,7 +23,43 @@ export async function GET() {
       popularRes.json(),
     ]);
 
-    return NextResponse.json({ recent, popular });
+    // 🔹 Formatar os 5 mais populares para o Hero
+    const popularFormatted = (popular.data || [])
+      .slice(0, 5)
+      .map((manga: any) => {
+        const title =
+          manga.attributes.title.en ||
+          manga.attributes.title["ja-ro"] ||
+          "Sem título";
+
+        // Capa
+        const coverRel = manga.relationships?.find(
+          (rel: any) => rel.type === "cover_art"
+        );
+        const coverFileName = coverRel?.attributes?.fileName || null;
+        const coverUrl = coverFileName
+          ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}`
+          : "/hero-bg.jpg"; // fallback
+
+        // Tags (gêneros)
+        const tags = manga.attributes.tags
+          .slice(0, 4)
+          .map((t: any) => t.attributes.name.en);
+
+        return {
+          id: manga.id,
+          title,
+          description: manga.attributes.description?.en?.slice(0, 200) || "",
+          coverUrl,
+          tags,
+        };
+      });
+
+    return NextResponse.json({
+      recent,
+      popular,
+      popularFormatted, // ✅ novo campo para o Hero
+    });
   } catch (error) {
     console.error("Erro API Manga:", error);
     return NextResponse.json(

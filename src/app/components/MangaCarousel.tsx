@@ -3,6 +3,7 @@
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type MangaCarouselProps = { results?: any[] };
 
@@ -33,7 +34,6 @@ export default function MangaCarousel({ results = [] }: MangaCarouselProps) {
             Object.values(attrs.title ?? {})[0] ||
             "Sem título";
 
-          // cover_art vem em relationships quando você usa includes[]=cover_art
           const coverRel = manga.relationships?.find(
             (r: any) => r.type === "cover_art"
           );
@@ -62,20 +62,22 @@ export default function MangaCarousel({ results = [] }: MangaCarouselProps) {
         })}
       </div>
 
-      {/* setas */}
+      {/* Botão anterior */}
       <button
         onClick={() => instanceRef.current?.prev()}
-        className="absolute left-0 top-1/2 -translate-y-1/2 bg-purple-700 hover:bg-purple-900 text-white rounded-full w-9 h-9 grid place-items-center"
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full z-20 transition"
         aria-label="Anterior"
       >
-        ‹
+        <ChevronLeft size={20} />
       </button>
+
+      {/* Botão próximo */}
       <button
         onClick={() => instanceRef.current?.next()}
-        className="absolute right-0 top-1/2 -translate-y-1/2 bg-purple-700 hover:bg-purple-900 text-white rounded-full w-9 h-9 grid place-items-center"
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full z-20 transition"
         aria-label="Próximo"
       >
-        ›
+        <ChevronRight size={20} />
       </button>
     </div>
   );
