@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const title = searchParams.get("title") || "";
   const limit = searchParams.get("limit") || "20";
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       data: formatted,
-      total: data.total, // API retorna total de resultados
+      total: data.total,
     });
   } catch (error) {
     console.error("Erro API Search:", error);
