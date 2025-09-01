@@ -24,12 +24,16 @@ export default function MangaCatalog({
         {uniqueItems.map((manga) => {
           const title =
             manga.title || manga.attributes?.title?.en || "Sem título";
-          const coverUrl =
-            manga.coverUrl ||
-            `https://uploads.mangadex.org/covers/${manga.id}/${
-              manga.relationships?.find((r: any) => r.type === "cover_art")
-                ?.attributes?.fileName
-            }`;
+
+          // Pega o fileName da capa
+          const coverFileName = manga.relationships?.find(
+            (r: any) => r.type === "cover_art"
+          )?.attributes?.fileName;
+
+          // Monta a URL da capa com o sufixo .256.jpg
+          const coverUrl = coverFileName
+            ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}.256.jpg`
+            : "/fallback-cover.jpg"; // opcional: imagem padrão se não tiver capa
 
           return (
             <div
