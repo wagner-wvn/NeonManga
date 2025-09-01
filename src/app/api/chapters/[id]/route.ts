@@ -1,9 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { RouteContext } from "next";
 
-export async function GET(req: NextRequest) {
-  // Pega o id direto da URL
-  const url = new URL(req.url);
-  const id = url.pathname.split("/").pop(); // último segmento da rota
+export async function GET(
+  req: Request,
+  context: RouteContext<'/api/manga/[id]'>
+) {
+  const { id } = context.params;
 
   if (!id) {
     return NextResponse.json({ error: "ID não fornecido" }, { status: 400 });
