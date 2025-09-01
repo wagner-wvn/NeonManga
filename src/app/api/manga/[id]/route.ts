@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const mangaId = params.id;
+export async function GET(req: NextRequest) {
+  // Pega o id diretamente da URL
+  const url = new URL(req.url);
+  const id = url.pathname.split("/").pop(); // último segmento da rota
+
+  if (!id) {
+    return NextResponse.json({ error: "ID não fornecido" }, { status: 400 });
+  }
 
   try {
     const res = await fetch(
-      `https://api.mangadex.org/manga/${mangaId}?includes[]=cover_art&includes[]=author&includes[]=artist&includes[]=tag`
+      `https://api.mangadex.org/manga/${id}?includes[]=cover_art&includes[]=author&includes[]=artist&includes[]=tag`
     );
 
     if (!res.ok) {
