@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const mangaId = params.id;
+export async function GET(req: NextRequest, context: { params: { id: string } }) {
+  const mangaId = context.params.id;
 
   try {
-    // Busca capítulos com PT-BR e EN 
     const feedUrl = `https://api.mangadex.org/manga/${mangaId}/feed?translatedLanguage[]=pt-br&translatedLanguage[]=en&order[chapter]=asc&limit=100&includeEmptyPages=0`;
     const response = await fetch(feedUrl);
 
     if (!response.ok) {
-      return NextResponse.json(
-        { error: "Falha ao buscar capítulos" },
-        { status: response.status }
-      );
+      return NextResponse.json({ error: "Falha ao buscar capítulos" }, { status: response.status });
     }
 
     const data = await response.json();
@@ -20,37 +16,27 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const chapterMap = new Map<string, any>();
 
-    // Filtra duplicados e escolhe idioma PT-BR
     chapters.forEach((ch: any) => {
       const chapterNum = ch.attributes.chapter || "0";
       const existing = chapterMap.get(chapterNum);
 
       if (!existing) {
         chapterMap.set(chapterNum, ch);
-      } else {
-        // Se já existe, prioriza PT-BR
-        if (
-          existing.attributes.translatedLanguage !== "pt-br" &&
-          ch.attributes.translatedLanguage === "pt-br"
-        ) {
-          chapterMap.set(chapterNum, ch);
-        }
+      } else if (
+        existing.attributes.translatedLanguage !== "pt-br" &&
+        ch.attributes.translatedLanguage === "pt-br"
+      ) {
+        chapterMap.set(chapterNum, ch);
       }
     });
 
-    // Converte para array e ordena numericamente
-    const validChapters = Array.from(chapterMap.values()).sort((a, b) => {
-      const aNum = parseFloat(a.attributes.chapter || "0");
-      const bNum = parseFloat(b.attributes.chapter || "0");
-      return aNum - bNum;
-    });
+    const validChapters = Array.from(chapterMap.values()).sort(
+      (a, b) => parseFloat(a.attributes.chapter || "0") - parseFloat(b.attributes.chapter || "0")
+    );
 
     return NextResponse.json({ data: validChapters });
   } catch (error) {
     console.error("Erro ao buscar capítulos:", error);
-    return NextResponse.json(
-      { error: "Erro interno ao buscar capítulos" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erro interno ao buscar capítulos" }, { status: 500 });
   }
 }
