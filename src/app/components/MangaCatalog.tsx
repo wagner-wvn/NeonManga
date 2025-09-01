@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 interface MangaCatalogProps {
@@ -13,47 +12,10 @@ export default function MangaCatalog({
   query = "",
 }: MangaCatalogProps) {
   const router = useRouter();
-  const [items, setItems] = useState(results);
-  const [offset, setOffset] = useState(results.length);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(results.length > 0); // 🔹 controle de mais itens
-  const LIMIT = 20;
-
-  const loadMore = async () => {
-    if (!query || !hasMore) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `/api/search?title=${encodeURIComponent(
-          query
-        )}&limit=${LIMIT}&offset=${offset}`
-      );
-      const data = await res.json();
-
-      const newItems = [...items, ...(data.data || [])];
-
-      // Remove duplicados
-      const uniqueItems = Array.from(
-        new Map(newItems.map((manga) => [manga.id, manga])).values()
-      );
-
-      setItems(uniqueItems);
-      setOffset(uniqueItems.length);
-
-      // 🔹 Atualiza hasMore
-      const total = data.total || 0;
-      setHasMore(uniqueItems.length < total);
-    } catch (err) {
-      console.error("Erro ao carregar mais:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Mantém apenas itens únicos
   const uniqueItems = Array.from(
-    new Map(items.map((manga) => [manga.id, manga])).values()
+    new Map(results.map((manga) => [manga.id, manga])).values()
   );
 
   return (
@@ -85,19 +47,6 @@ export default function MangaCatalog({
           );
         })}
       </div>
-
-      {/* Botão de carregar mais só aparece se houver mais resultados */}
-      {query && hasMore && (
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={loadMore}
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
-          >
-            {loading ? "Carregando..." : "Carregar mais"}
-          </button>
-        </div>
-      )}
     </div>
   );
 }
