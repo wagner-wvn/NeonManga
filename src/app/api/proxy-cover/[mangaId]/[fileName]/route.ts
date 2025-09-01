@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Cache em memória usando ArrayBuffer
-const coverCache: { [key: string]: ArrayBuffer } = {};
+// Cache em memória usando Uint8Array
+const coverCache: { [key: string]: Uint8Array } = {};
 
 export async function GET(req: NextRequest) {
   try {
@@ -31,13 +31,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Falha ao buscar a capa" }, { status: coverRes.status });
     }
 
-    // Pega ArrayBuffer direto
     const arrayBuffer = await coverRes.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
 
     // Salva no cache
-    coverCache[cacheKey] = arrayBuffer;
+    coverCache[cacheKey] = uint8Array;
 
-    return new NextResponse(arrayBuffer, {
+    return new NextResponse(uint8Array, {
       headers: { "Content-Type": "image/jpeg" },
     });
   } catch (err) {
