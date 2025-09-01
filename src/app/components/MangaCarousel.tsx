@@ -46,15 +46,18 @@ export default function MangaCarousel({ results = [] }: MangaCarouselProps) {
             <div key={manga.id} className="keen-slider__slide">
               <div
                 onClick={() => router.push(`/manga/${manga.id}`)}
-                className="cursor-pointer rounded-xl overflow-hidden bg-[#241530] shadow hover:shadow-lg hover:scale-[1.02] transition"
+                className="cursor-pointer rounded-xl overflow-hidden bg-[#241530] shadow hover:shadow-lg hover:scale-[1.02] transition h-full flex flex-col"
               >
                 <img
                   src={coverUrl}
                   alt={title}
-                  className="w-full h-64 object-cover"
+                  className="w-full h-64 object-cover flex-shrink-0"
                 />
-                <div className="p-3">
-                  <p className="text-sm font-semibold line-clamp-2">{title}</p>
+                <div className="p-3 flex-1 flex flex-col justify-between">
+                  {/* Container com altura mínima para títulos de 2 linhas */}
+                  <p className="text-sm font-semibold line-clamp-2 min-h-[2.5rem]">
+                    {title}
+                  </p>
                 </div>
               </div>
             </div>

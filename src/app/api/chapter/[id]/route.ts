@@ -4,7 +4,7 @@ export async function GET(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await context.params; // ✅ agora funciona
+  const { id } = await context.params;
   const chapterId = id;
 
   try {

@@ -15,7 +15,6 @@ export default function Home() {
       const res = await fetch("/api/manga");
       const data = await res.json();
 
-      // Seu endpoint /api/manga retorna { recent, popular }
       setRecent(data.recent?.data || []);
       setPopular(data.popular?.data || []);
     } catch (err) {
@@ -31,36 +30,39 @@ export default function Home() {
     fetchMangaLists();
   }, []);
 
-  // 🔹 Loading Fullscreen
+  // Loading Fullscreen
   if (loading) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center bg-black">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent"></div>
+      <div className="w-screen h-screen flex items-center justify-center bg-zinc-950">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-700 border-t-transparent"></div>
       </div>
     );
   }
 
-  // 🔹 Quando já tiver carregado
   return (
-    <main className="bg-black text-white min-h-screen">
+    <main className="bg-zinc-950 text-white min-h-screen">
       <Hero />
 
       <div className="max-w-7xl mx-auto px-4 pb-12">
         {/* Mais Recentes */}
         <section className="mt-10">
-          <h2 className="text-xl font-bold mb-4">📖 Mais Recentes</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-purple-400">
+            📖 Mais Recentes
+          </h2>
           {recent.length ? (
-            <MangaCarousel results={recent} />
+            <MangaCarousel results={recent} highlightColor="purple" />
           ) : (
             <p className="text-sm text-gray-400">Nada por aqui ainda.</p>
           )}
         </section>
 
         {/* Populares */}
-        <section className="mt-10">
-          <h2 className="text-xl font-bold mb-4">🔥 Populares</h2>
+        <section className="mt-12">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-purple-400">
+            🔥 Populares
+          </h2>
           {popular.length ? (
-            <MangaCarousel results={popular} />
+            <MangaCarousel results={popular} highlightColor="purple" />
           ) : (
             <p className="text-sm text-gray-400">Nada por aqui ainda.</p>
           )}

@@ -43,7 +43,7 @@ export default function Hero() {
 
   if (mangas.length === 0) {
     return (
-      <section className="relative h-[60vh] flex items-center justify-center bg-black">
+      <section className="relative h-[60vh] flex items-center justify-center bg-black pt-16">
         <p className="text-white text-lg">Carregando recomendações...</p>
       </section>
     );
@@ -52,7 +52,7 @@ export default function Hero() {
   const manga = mangas[current];
 
   return (
-    <section className="relative h-[60vh] flex items-center justify-center text-center overflow-hidden">
+    <section className="relative h-[60vh] flex items-center justify-center text-center overflow-hidden pt-16">
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -62,47 +62,54 @@ export default function Hero() {
           className="object-cover brightness-50"
           priority
         />
+        {/* Gradiente roxo por cima da imagem */}
+        <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-900/40 to-transparent"></div>
       </div>
 
       {/* Conteúdo */}
-      <div className="relative z-10 max-w-3xl px-4 text-white">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">{manga.title}</h1>
-        <p className="text-base md:text-lg mb-6 line-clamp-3">
+      <div className="relative z-10 max-w-3xl px-4 text-white flex flex-col items-center h-full justify-center text-center">
+        {/* Título */}
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 break-words">
+          {manga.title}
+        </h1>
+
+        {/* Descrição */}
+        <p className="text-sm sm:text-base md:text-lg mb-4 line-clamp-3">
           {manga.description}
         </p>
 
         {/* Tags */}
-        <div className="flex flex-wrap justify-center gap-2 mb-6">
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
           {manga.tags.map((tag) => (
             <span
               key={tag}
-              className="bg-red-600 px-3 py-1 rounded-full text-sm font-medium"
+              className="bg-purple-700 px-3 py-1 rounded-full text-sm font-medium"
             >
               {tag}
             </span>
           ))}
         </div>
 
-        {/* Botão de ler */}
+        {/* Botão Ler Agora */}
         <button
           onClick={() => router.push(`/manga/${manga.id}`)}
-          className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition"
+          className="bg-purple-700 hover:bg-purple-800 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition mb-4"
         >
           Ler Agora
         </button>
-      </div>
 
-      {/* Indicadores (pontinhos) */}
-      <div className="absolute bottom-6 flex justify-center gap-2 z-20 w-full">
-        {mangas.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrent(index)}
-            className={`h-3 w-3 rounded-full transition ${
-              index === current ? "bg-red-600 scale-110" : "bg-gray-400/70"
-            }`}
-          />
-        ))}
+        {/* Pontinhos */}
+        <div className="flex justify-center gap-2 mt-2">
+          {mangas.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrent(index)}
+              className={`h-3 w-3 rounded-full transition ${
+                index === current ? "bg-purple-600 scale-110" : "bg-gray-400/70"
+              }`}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Botões de navegação */}
