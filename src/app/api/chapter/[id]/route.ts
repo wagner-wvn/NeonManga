@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const chapterId = params.id;
+export async function GET(req: NextRequest) {
+  // Pega o id direto da URL
+  const url = new URL(req.url);
+  const id = url.pathname.split("/").pop(); // último segmento da rota
+
+  if (!id) {
+    return NextResponse.json({ error: "ID não fornecido" }, { status: 400 });
+  }
 
   try {
-    const response = await fetch(
-      `https://api.mangadex.org/at-home/server/${chapterId}`
-    );
+    const response = await fetch(`https://api.mangadex.org/at-home/server/${id}`);
 
     if (!response.ok) {
       return NextResponse.json(
