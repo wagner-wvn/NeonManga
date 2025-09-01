@@ -11,7 +11,7 @@ interface MangaGridProps {
 export default function MangaGrid({ results }: MangaGridProps) {
   const router = useRouter();
 
-  // 👇 armazenar o slider instance no estado
+  // armazenar o slider instance no estado
   const [sliderRef, sliderInstance] = useKeenSlider<HTMLDivElement>({
     slides: { perView: 3, spacing: 15 },
     breakpoints: {

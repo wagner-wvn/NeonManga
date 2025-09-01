@@ -107,23 +107,27 @@ export default function MangaDetails() {
               <p className="text-gray-400">Nenhum capítulo disponível.</p>
             )}
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {chapters.map((ch) => (
-                <li
-                  key={ch.id}
-                  className="p-3 border rounded flex justify-between items-center hover:bg-purple-800 transition"
-                >
-                  <span>
-                    Capítulo {ch.attributes.chapter || "?"} -{" "}
-                    {ch.attributes.title || "Sem título"}
-                  </span>
-                  <button
-                    onClick={() => router.push(`/reader/${ch.id}`)}
-                    className="bg-purple-600 text-white px-3 py-1 rounded"
+              {chapters.map((ch) => {
+                const lang =
+                  ch.attributes.translatedLanguage === "pt-br" ? "PT-BR" : "EN";
+                return (
+                  <li
+                    key={ch.id}
+                    className="p-3 border rounded flex justify-between items-center hover:bg-purple-800 transition"
                   >
-                    Ler
-                  </button>
-                </li>
-              ))}
+                    <span>
+                      [{lang}] Capítulo {ch.attributes.chapter || "?"} -{" "}
+                      {ch.attributes.title || "Sem título"}
+                    </span>
+                    <button
+                      onClick={() => router.push(`/reader/${ch.id}`)}
+                      className="bg-purple-600 text-white px-3 py-1 rounded"
+                    >
+                      Ler
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </>

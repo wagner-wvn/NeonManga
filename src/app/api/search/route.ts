@@ -4,18 +4,18 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const title = searchParams.get("title") || "";
   const limit = searchParams.get("limit") || "20";
+  const offset = searchParams.get("offset") || "0";
 
   try {
     const url = `https://api.mangadex.org/manga?title=${encodeURIComponent(
       title
-    )}&includes[]=cover_art&limit=${limit}&availableTranslatedLanguage[]=en&hasAvailableChapters=true`;
+    )}&includes[]=cover_art&limit=${limit}&offset=${offset}&availableTranslatedLanguage[]=en&hasAvailableChapters=true`;
 
     const res = await fetch(url);
     if (!res.ok) throw new Error("Erro ao buscar dados da API do MangaDex");
 
     const data = await res.json();
 
-    // 🔹 Formatar resultado
     const formatted = (data.data || []).map((manga: any) => {
       const title =
         manga.attributes.title.en ||
@@ -38,7 +38,10 @@ export async function GET(req: Request) {
       };
     });
 
-    return NextResponse.json({ data: formatted });
+    return NextResponse.json({
+      data: formatted,
+      total: data.total, // API retorna total de resultados
+    });
   } catch (error) {
     console.error("Erro API Search:", error);
     return NextResponse.json(

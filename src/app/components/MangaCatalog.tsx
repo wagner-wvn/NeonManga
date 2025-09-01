@@ -1,54 +1,85 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface MangaCatalogProps {
-  results: any[];
+  results?: any[];
 }
 
-export default function MangaCatalog({ results }: MangaCatalogProps) {
+export default function MangaCatalog({ results = [] }: MangaCatalogProps) {
   const router = useRouter();
 
+  // Estado inicial com resultados recebidos
+  const [items, setItems] = useState(results);
+  const [offset, setOffset] = useState(results.length);
+  const [loading, setLoading] = useState(false);
+
+  // Função de carregar mais resultados
+  const loadMore = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `https://api.mangadex.org/manga?limit=20&offset=${offset}&includes[]=cover_art`
+      );
+      const data = await res.json();
+
+      // JUNTA OS NOVOS COM OS EXISTENTES
+      const newItems = [...items, ...(data.data || [])];
+
+      // REMOVE DUPLICADOS COM BASE NO ID
+      const uniqueItems = Array.from(
+        new Map(newItems.map((manga) => [manga.id, manga])).values()
+      );
+
+      setItems(uniqueItems);
+      setOffset(uniqueItems.length);
+    } catch (err) {
+      console.error("Erro ao carregar mais:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔹 Garante que só renderizamos itens únicos
+  const uniqueItems = Array.from(
+    new Map(items.map((manga) => [manga.id, manga])).values()
+  );
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4">
-      {results.map((manga) => {
-        const title =
-          manga.attributes?.title?.en ||
-          manga.attributes?.title?.ja ||
-          "Sem título";
-
-        const coverRel = manga.relationships?.find(
-          (rel: any) => rel.type === "cover_art"
-        );
-
-        // 🚨 A API de search pode trazer "relationships" sem coverFileName ainda
-        const coverFileName = coverRel?.attributes?.fileName;
-
-        return (
+    <div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {uniqueItems.map((manga) => (
           <div
             key={manga.id}
-            className="bg-[#241530] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition"
             onClick={() => router.push(`/manga/${manga.id}`)}
+            className="cursor-pointer bg-zinc-900 p-2 rounded-lg hover:scale-105 transition"
           >
-            {coverFileName ? (
-              <img
-                src={`https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}.512.jpg`}
-                alt={title}
-                className="w-full h-60 object-cover"
-              />
-            ) : (
-              <div className="w-full h-60 bg-purple-900 flex items-center justify-center text-sm text-gray-400">
-                Sem capa
-              </div>
-            )}
-            <div className="p-2 text-center">
-              <h2 className="text-sm font-semibold line-clamp-2 text-white">
-                {title}
-              </h2>
-            </div>
+            <img
+              src={`https://uploads.mangadex.org/covers/${manga.id}/${
+                manga.relationships?.find((r: any) => r.type === "cover_art")
+                  ?.attributes?.fileName
+              }`}
+              alt={manga.attributes?.title?.en || "Sem título"}
+              className="rounded-md"
+            />
+            <p className="mt-2 text-sm truncate">
+              {manga.attributes?.title?.en || "Sem título"}
+            </p>
           </div>
-        );
-      })}
+        ))}
+      </div>
+
+      {/* Botão de carregar mais */}
+      <div className="flex justify-center mt-6">
+        <button
+          onClick={loadMore}
+          disabled={loading}
+          className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+        >
+          {loading ? "Carregando..." : "Carregar mais"}
+        </button>
+      </div>
     </div>
   );
 }

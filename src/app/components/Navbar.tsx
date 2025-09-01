@@ -1,22 +1,43 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { Home, Search } from "lucide-react";
+
+const MySwal = withReactContent(Swal);
 
 export default function Navbar() {
-  const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
-    setSearchQuery(""); // limpa campo depois
+  const handleSearch = async () => {
+    const { value: query } = await MySwal.fire({
+      title: "Pesquisar Mangá",
+      input: "text",
+      inputPlaceholder: "Digite o nome do mangá...",
+      showCancelButton: true,
+      confirmButtonText: "Buscar",
+      cancelButtonText: "Cancelar",
+      background: "#1f1f2e",
+      color: "#fff",
+      confirmButtonColor: "#9333ea",
+      cancelButtonColor: "#6b7280",
+      inputAttributes: {
+        autocapitalize: "off",
+      },
+    });
+
+    if (query && query.trim()) {
+      router.push(`/search?query=${encodeURIComponent(query)}`);
+    }
   };
 
   return (
-    <nav className="w-full px-6 py-4 flex flex-col md:flex-row md:justify-between md:items-center bg-gradient-to-r from-purple-900 via-pink-800 to-purple-900 shadow-lg">
+    <nav
+      className="w-full px-6 py-4 flex items-center justify-between 
+  bg-white/10 backdrop-blur-md shadow-lg border-b border-white/20"
+    >
       {/* Logo */}
       <Link
         href="/"
@@ -25,31 +46,17 @@ export default function Navbar() {
         NeonMangá
       </Link>
 
-      {/* Links + Search */}
-      <div className="mt-3 md:mt-0 flex items-center gap-6">
-        <Link
-          href="/"
-          className="text-gray-200 hover:text-white transition-colors"
-        >
-          Home
+      {/* Ícones */}
+      <div className="flex items-center gap-6 text-white">
+        <Link href="/" className="hover:text-pink-300 transition-colors">
+          <Home className="w-6 h-6" />
         </Link>
-
-        {/* Search */}
-        <form onSubmit={handleSearch} className="flex">
-          <input
-            type="text"
-            placeholder="Pesquisar..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-3 py-1 rounded-l-md outline-none text-black w-40 md:w-56"
-          />
-          <button
-            type="submit"
-            className="bg-white text-black px-3 py-1 rounded-r-md hover:bg-gray-200 transition-colors"
-          >
-            🔍
-          </button>
-        </form>
+        <button
+          onClick={handleSearch}
+          className="hover:text-pink-300 transition-colors"
+        >
+          <Search className="w-6 h-6" />
+        </button>
       </div>
     </nav>
   );
