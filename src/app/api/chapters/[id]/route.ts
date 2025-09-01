@@ -4,7 +4,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const mangaId = params.id;
 
   try {
-    // Busca capítulos com PT-BR e EN
+    // Busca capítulos com PT-BR e EN 
     const feedUrl = `https://api.mangadex.org/manga/${mangaId}/feed?translatedLanguage[]=pt-br&translatedLanguage[]=en&order[chapter]=asc&limit=100&includeEmptyPages=0`;
     const response = await fetch(feedUrl);
 
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const chapterMap = new Map<string, any>();
 
-    // Filtra duplicados e escolhe idioma PT-BR se disponível
+    // Filtra duplicados e escolhe idioma PT-BR
     chapters.forEach((ch: any) => {
       const chapterNum = ch.attributes.chapter || "0";
       const existing = chapterMap.get(chapterNum);
