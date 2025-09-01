@@ -5,9 +5,15 @@ import "keen-slider/keen-slider.min.css";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-type MangaCarouselProps = { results?: any[] };
+type MangaCarouselProps = {
+  results?: any[];
+  highlightColor?: string; // nova prop opcional
+};
 
-export default function MangaCarousel({ results = [] }: MangaCarouselProps) {
+export default function MangaCarousel({
+  results = [],
+  highlightColor = "purple", // valor padrão
+}: MangaCarouselProps) {
   const router = useRouter();
 
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
@@ -54,8 +60,10 @@ export default function MangaCarousel({ results = [] }: MangaCarouselProps) {
                   className="w-full h-64 object-cover flex-shrink-0"
                 />
                 <div className="p-3 flex-1 flex flex-col justify-between">
-                  {/* Container com altura mínima para títulos de 2 linhas */}
-                  <p className="text-sm font-semibold line-clamp-2 min-h-[2.5rem]">
+                  {/* título com cor dinâmica */}
+                  <p
+                    className={`text-sm font-semibold line-clamp-2 min-h-[2.5rem] text-${highlightColor}-400`}
+                  >
                     {title}
                   </p>
                 </div>
