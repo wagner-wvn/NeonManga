@@ -38,9 +38,12 @@ export default function Navbar() {
       {/* Logo */}
       <Link
         href="/"
-        className="text-2xl font-extrabold text-white tracking-widest hover:text-purple-300 transition-colors"
+        className="flex items-center gap-2 hover:text-purple-300 transition-colors"
       >
-        NeonMangá
+        <img src="/favicon.ico" alt="Neon Mangá" className="w-8 h-8 rounded-full" />
+        <span className="text-2xl font-extrabold text-white tracking-widest">
+          NeonMangá
+        </span>
       </Link>
 
       {/* Desktop Menu */}

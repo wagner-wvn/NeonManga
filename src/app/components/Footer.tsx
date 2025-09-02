@@ -1,44 +1,34 @@
-import { Github, Instagram, Twitter } from "lucide-react";
+import { Github, Instagram } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-zinc-950 border-t border-purple-800 py-8 mt-10">
-      <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <footer className="w-full bg-zinc-950 border-t border-purple-800 py-10 mt-10">
+      <div className="max-w-7xl mx-auto px-4 flex flex-col items-center gap-4">
         {/* Texto */}
-        <p className="text-gray-300 text-sm sm:text-base text-center sm:text-left">
+        <p className="text-gray-300 text-sm sm:text-base text-center">
           &copy; 2025{" "}
-          <span className="text-purple-400 font-semibold">NeonMangá</span> -
-          Criado com ❤️ por WVN
+          <span className="text-purple-400 font-semibold">NeonMangá</span> - Criado com ❤️ por <a href="https://caminhourbano.com.br/" target="_blank">WVN</a>
         </p>
 
         {/* Links de redes sociais */}
-        <div className="flex gap-4">
+        <div className="flex gap-6 mt-2">
           <a
-            href="https://github.com/"
+            href="https://github.com/wagner-wvn"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-400 hover:text-purple-400 transition-colors"
+            className="text-gray-400 hover:text-purple-400 transition-colors transform hover:-translate-y-1 hover:scale-110"
             aria-label="GitHub"
           >
-            <Github size={20} />
+            <Github size={24} />
           </a>
           <a
-            href="https://instagram.com/"
+            href="https://www.instagram.com/caminho.urbano/#"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-400 hover:text-purple-400 transition-colors"
+            className="text-gray-400 hover:text-purple-400 transition-colors transform hover:-translate-y-1 hover:scale-110"
             aria-label="Instagram"
           >
-            <Instagram size={20} />
-          </a>
-          <a
-            href="https://twitter.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-400 hover:text-purple-400 transition-colors"
-            aria-label="Twitter"
-          >
-            <Twitter size={20} />
+            <Instagram size={24} />
           </a>
         </div>
       </div>
