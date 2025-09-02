@@ -8,7 +8,7 @@ export default function Footer() {
         <p className="text-gray-300 text-sm sm:text-base text-center">
           &copy; 2025{" "}
           <span className="text-purple-400 font-semibold">NeonMangá</span> | Criado com <span className="text-red-500">❤️</span> por <a href="https://caminhourbano.com.br/" target="_blank" className="underline hover:text-purple-400">WVN</a> | 
-          <a href="https://github.com/wagner-wvn/NeonManga/blob/master/LICENSE.txt" target="_blank" className="underline hover:text-purple-400">MIT License</a>
+          <a href="https://github.com/wagner-wvn/NeonManga/blob/master/LICENSE.txt" target="_blank" className="underline hover:text-purple-400"> MIT License</a>
         </p>
 
 
