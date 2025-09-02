@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<h1 align="center">Neon Mangá</h1>
 
-## Getting Started
+<p align="center">
+  Uma <strong>plataforma moderna</strong> para leitura de mangás online, desenvolvida com <strong>Next.js 15</strong> e <strong>TailwindCSS 4</strong>.<br>
+  O projeto utiliza a API do <strong>MangaDex</strong> para exibir títulos e capítulos de forma prática, rápida e totalmente responsiva.<br><br>
+  Nosso foco é oferecer <strong>performance</strong>, <strong>design limpo</strong> e uma <strong>experiência fluida</strong> para os leitores.<br>
+  🚧 O projeto ainda está em desenvolvimento e aberto para melhorias — toda contribuição é bem-vinda!<br><br>
+  Vale destacar que este é um projeto <strong>sem fins lucrativos</strong>, criado apenas por <strong>hobby</strong>, aprendizado e, claro, pela paixão por <strong>programação e animes</strong>! ✨
+</p>
 
-First, run the development server:
+<p align="center">
+  <img src="public/favicon.ico" alt="NeonManga Logo" width="120" />
+</p>
 
-```bash
+---
+
+<h2>🚀 Tecnologias Utilizadas</h2>
+
+<ul>
+  <li><strong>Next.js 15.5.2</strong> – Framework React moderno com App Router</li>
+  <li><strong>React 19</strong> – Biblioteca para interfaces interativas</li>
+  <li><strong>TailwindCSS 4</strong> – Estilização rápida e responsiva</li>
+  <li><strong>SweetAlert2</strong> – Modais customizados para interações</li>
+  <li><strong>Keen Slider</strong> – Carrosséis de alta performance</li>
+  <li><strong>Lucide Icons</strong> – Ícones minimalistas</li>
+  <li><strong>TypeScript 5</strong> – Tipagem estática</li>
+</ul>
+
+---
+
+<h2>🔮 Futuras Melhorias</h2>
+
+<ul>
+  <li>☐ Filtros avançados por gênero e status.</li>
+  <li>☐ Sistema de favoritos.</li>
+  <li>☐ Botões de Próximo e Anterior na página de mangá.</li>
+  <li>☐ Salvamento de progresso de leitura.</li>
+  <li>☐ Suporte multilíngue.</li>
+</ul>
+
+---
+
+<h2>⚙️ Como Rodar Localmente</h2>
+
+<pre>
+# Clone este repositório
+git clone https://github.com/wagner-wvn/NeonManga.git
+
+# Entre na pasta do projeto
+cd neonmanga
+
+# Instale as dependências
+npm install
+
+# Rode em modo desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# Acesse em: http://localhost:3000
+</pre>
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+<h2>📬 Contato</h2>
+<ul>
+  <li>Website: <a href="https://caminhourbano.com.br" target="_blank">https://caminhourbano.com.br</a></li>
+  <li>LinkedIn: <a href="https://br.linkedin.com/in/wagner-vitor-novais" target="_blank">https://br.linkedin.com/in/wagner-vitor-novais</a></li>
+  <li>GitHub: <a href="https://github.com/wagner-wvn" target="_blank">https://github.com/wagner-wvn</a></li>
+</ul>
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+<h2>📜 Licença</h2>
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<p>
+  Este projeto está licenciado sob a <strong>MIT License</strong>.<br>
+  Você pode usar, copiar, modificar e distribuir este software de forma livre, desde que mantenha os créditos.
+</p>
