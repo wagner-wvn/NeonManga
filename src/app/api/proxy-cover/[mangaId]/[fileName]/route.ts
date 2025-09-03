@@ -1,18 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 // Cache simples em memória por processo
 const coverCache = new Map<string, ArrayBuffer>();
 
 export async function GET(
-  req: NextRequest,
-  context: { params: { mangaId: string; fileName: string } } // <- tipo inline correto
+  req: Request,
+  context: { params: { mangaId: string; fileName: string } } // <- inline, sem alias
 ) {
   try {
     const { mangaId, fileName } = context.params;
     const { searchParams } = new URL(req.url);
 
     if (!mangaId || !fileName) {
-      return NextResponse.json({ error: "ID ou filename não fornecido" }, { status: 400 });
+      return NextResponse.json(
+        { error: "ID ou filename não fornecido" },
+        { status: 400 }
+      );
     }
 
     // tamanho: 256 | 512 | original
