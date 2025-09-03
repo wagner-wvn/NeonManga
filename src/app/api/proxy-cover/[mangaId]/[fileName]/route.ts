@@ -3,13 +3,15 @@ import { NextResponse } from "next/server";
 // Cache simples em memória por processo
 const coverCache = new Map<string, ArrayBuffer>();
 
-export async function GET(
-  req: Request,
-  context: { params: { mangaId: string; fileName: string } } // <- inline, sem alias
-) {
+export async function GET(req: Request) {
   try {
-    const { mangaId, fileName } = context.params;
-    const { searchParams } = new URL(req.url);
+    const url = new URL(req.url);
+    const { searchParams, pathname } = url;
+
+    // Esperado: /api/proxy-cover/<mangaId>/<fileName>
+    const segments = pathname.split("/"); // ["", "api", "proxy-cover", "<mangaId>", "<fileName>"]
+    const fileName = decodeURIComponent(segments.pop() || "");
+    const mangaId = decodeURIComponent(segments.pop() || "");
 
     if (!mangaId || !fileName) {
       return NextResponse.json(
