@@ -1,0 +1,70 @@
+import { NextRequest, NextResponse } from "next/server";
+
+type Params = { mangaId: string; fileName: string };
+
+// Cache simples em memória por processo
+const coverCache = new Map<string, ArrayBuffer>();
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Params }
+) {
+  try {
+    const { mangaId, fileName } = params;
+    const { searchParams } = new URL(req.url);
+
+    if (!mangaId || !fileName) {
+      return NextResponse.json({ error: "ID ou filename não fornecido" }, { status: 400 });
+    }
+
+    // tamanho: 256 | 512 | original
+    const sizeParam = (searchParams.get("size") || "512").toLowerCase();
+    const size = sizeParam === "256" ? "256" : sizeParam === "original" ? "" : "512";
+
+    const cacheKey = `${mangaId}:${fileName}:${size || "orig"}`;
+    const cached = coverCache.get(cacheKey);
+    if (cached) {
+      return new NextResponse(cached, {
+        headers: {
+          "Content-Type": "image/jpeg",
+          "Cache-Control": "public, max-age=86400, immutable",
+        },
+      });
+    }
+
+    // Monta URL para MangaDex
+    // Se size === "" usamos o arquivo original; senão, thumbnail .{size}.jpg
+    const upstreamUrl =
+      size === ""
+        ? `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`
+        : `https://uploads.mangadex.org/covers/${mangaId}/${fileName}.${size}.jpg`;
+
+    const upstreamRes = await fetch(upstreamUrl, {
+      headers: {
+        // MangaDex exige User-Agent
+        "User-Agent": "NeonManga/0.1 (+https://example.com)",
+        // Aceite imagem
+        "Accept": "image/*",
+      },
+      // Importante: sem revalidate agressivo aqui – deixamos o cache HTTP fazer o trabalho
+    });
+
+    if (!upstreamRes.ok) {
+      // Fallback elegante: redireciona p/ uma imagem local
+      return NextResponse.redirect(new URL("/no-cover.jpg", req.url), 302);
+    }
+
+    const buf = await upstreamRes.arrayBuffer();
+    coverCache.set(cacheKey, buf);
+
+    return new NextResponse(buf, {
+      headers: {
+        "Content-Type": "image/jpeg",
+        "Cache-Control": "public, max-age=86400, immutable",
+      },
+    });
+  } catch (err) {
+    console.error("proxy-cover error:", err);
+    return NextResponse.redirect(new URL("/no-cover.jpg", req.url), 302);
+  }
+}

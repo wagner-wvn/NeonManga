@@ -2,6 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { getMangaById, getChaptersByMangaId } from "@/lib/api";
+import {
+  buildCoverUrl,
+  getDescription,
+  getTagName,
+  getTitle,
+  humanLang,
+  toNumber,
+} from "@/lib/formatters";
 
 interface Chapter {
   id: string;
@@ -25,6 +34,7 @@ interface Manga {
 export default function MangaDetails() {
   const { id } = useParams();
   const router = useRouter();
+
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [manga, setManga] = useState<Manga | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,14 +45,11 @@ export default function MangaDetails() {
 
     const fetchData = async () => {
       setLoading(true);
-
       try {
-        const resManga = await fetch(`/api/manga/${id}`);
-        const mangaData = await resManga.json();
+        const mangaData = await getMangaById(id as string);
         setManga(mangaData.data);
 
-        const resChapters = await fetch(`/api/chapters/${id}`);
-        const chaptersData = await resChapters.json();
+        const chaptersData = await getChaptersByMangaId(id as string);
         setChapters(chaptersData.data || []);
       } catch (err) {
         console.error("Erro ao buscar mangá ou capítulos:", err);
@@ -54,28 +61,19 @@ export default function MangaDetails() {
     fetchData();
   }, [id]);
 
-  const coverRel = manga?.relationships?.find(
-    (rel: any) => rel.type === "cover_art"
-  );
-  const coverFileName = coverRel?.attributes?.fileName;
+  // capa via relationship + utilitário (usa proxy para evitar CORS/hotlink)
+  const coverRel = manga?.relationships?.find((rel: any) => rel.type === "cover_art");
+  const coverFileName: string | undefined = coverRel?.attributes?.fileName;
+  const coverUrl = buildCoverUrl(manga?.id, coverFileName || null, 512, true);
 
-  // título → tenta PT-BR, depois EN, depois JA
-  const title =
-    manga?.attributes?.title?.["pt-br"] ||
-    manga?.attributes?.title?.en ||
-    manga?.attributes?.title?.ja ||
-    "Sem título";
+  // título e descrição padronizados
+  const title = getTitle(manga?.attributes);
+  const description = getDescription(manga?.attributes);
 
-  // descrição → tenta PT-BR, depois EN
-  const description =
-    manga?.attributes?.description?.["pt-br"] ||
-    manga?.attributes?.description?.en ||
-    "Sem descrição";
-
-  // ordenação capítulos
+  // ordenação de capítulos com conversão segura para número
   const sortedChapters = [...chapters].sort((a, b) => {
-    const aNum = parseFloat(a.attributes.chapter || "0");
-    const bNum = parseFloat(b.attributes.chapter || "0");
+    const aNum = toNumber(a.attributes.chapter);
+    const bNum = toNumber(b.attributes.chapter);
     return orderAsc ? aNum - bNum : bNum - aNum;
   });
 
@@ -89,7 +87,7 @@ export default function MangaDetails() {
           <div className="flex flex-col md:flex-row gap-6 mb-10">
             {coverFileName ? (
               <img
-                src={`https://uploads.mangadex.org/covers/${manga?.id}/${coverFileName}.512.jpg`}
+                src={coverUrl}
                 alt={title}
                 className="w-full md:w-64 max-h-[400px] object-cover rounded-lg shadow-lg"
               />
@@ -102,19 +100,16 @@ export default function MangaDetails() {
             <div className="flex-1">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">{title}</h1>
               <p className="mb-4 text-gray-300 line-clamp-6">{description}</p>
+
               <div className="flex flex-wrap gap-2">
-                {manga?.attributes?.tags.map((tag: any) => {
-                  const tagName =
-                    tag.attributes.name["pt-br"] || tag.attributes.name.en;
-                  return (
-                    <span
-                      key={tagName}
-                      className="bg-purple-700 text-white px-3 py-1 rounded-full text-sm"
-                    >
-                      {tagName}
-                    </span>
-                  );
-                })}
+                {manga?.attributes?.tags.map((tag: any, idx: number) => (
+                  <span
+                    key={`${getTagName(tag)}-${idx}`}
+                    className="bg-purple-700 text-white px-3 py-1 rounded-full text-sm"
+                  >
+                    {getTagName(tag)}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
@@ -138,10 +133,7 @@ export default function MangaDetails() {
             ) : (
               <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {sortedChapters.map((ch) => {
-                  const lang =
-                    ch.attributes.translatedLanguage === "pt-br"
-                      ? "PT-BR"
-                      : "EN";
+                  const lang = humanLang(ch.attributes.translatedLanguage);
                   return (
                     <li
                       key={ch.id}

@@ -1,36 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Hero from "./components/Hero";
-import MangaCarousel from "./components/MangaCarousel";
+import Hero from "@/components/home/Hero";
+import MangaCarousel from "@/components/manga/MangaCarousel";
+import { getMangaLists } from "@/lib/api";
 
 export default function Home() {
   const [recent, setRecent] = useState<any[]>([]);
   const [popular, setPopular] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchMangaLists = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/manga");
-      const data = await res.json();
-
-      setRecent(data.recent?.data || []);
-      setPopular(data.popular?.data || []);
-    } catch (err) {
-      console.error("Erro ao carregar mangás:", err);
-      setRecent([]);
-      setPopular([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchMangaLists();
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await getMangaLists();
+        setRecent(data.recent?.data || []);
+        setPopular(data.popular?.data || []);
+      } catch (err) {
+        console.error("Erro ao carregar mangás:", err);
+        setRecent([]);
+        setPopular([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  // Loading Fullscreen
   if (loading) {
     return (
       <div className="w-screen h-screen flex items-center justify-center bg-zinc-950">

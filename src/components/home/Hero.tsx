@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react"; // ícones bonitos
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Manga {
   id: string;

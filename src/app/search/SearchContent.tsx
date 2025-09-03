@@ -1,66 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { searchManga } from "@/lib/api";
+import { usePaginatedSearch } from "@/hooks/usePaginatedSearch";
+import MangaCard from "@/components/manga/MangaCard";
+import { buildCoverUrl, getTitle } from "@/lib/formatters";
 
 export default function SearchContent() {
-  const searchParams = useSearchParams();
-  const query = searchParams.get("query") || "";
+  const params = useSearchParams();
+  const query = params.get("query") || "";
 
-  const [results, setResults] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Paginação
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const LIMIT = 20;
-
-  // Busca resultados
-  const fetchResults = async (reset = false) => {
-    if (!query) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const res = await fetch(
-        `/api/search?title=${encodeURIComponent(query)}&limit=${LIMIT}&offset=${
-          reset ? 0 : offset
-        }`
-      );
-
-      if (!res.ok) throw new Error("Erro ao buscar mangás");
-      const data = await res.json();
-
-      const newResults = reset ? data.data || [] : [...results, ...(data.data || [])];
-      const uniqueResults = Array.from(new Map(newResults.map((m: any) => [m.id, m])).values());
-
-      setResults(uniqueResults);
-      setOffset(uniqueResults.length);
-
-      const total = data.total || 0;
-      setHasMore(uniqueResults.length < total);
-    } catch (err: any) {
-      setError("Erro na busca.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!query) {
-      setResults([]);
-      setHasMore(false);
-      return;
-    }
-    fetchResults(true);
-  }, [query]);
-
-  const handleLoadMore = () => {
-    if (!hasMore) return;
-    fetchResults(false);
-  };
+  const { results, loading, error, hasMore, loadMore } = usePaginatedSearch<any>(
+    query,
+    async (q, limit, offset) => {
+      const res = await searchManga(q, limit, offset);
+      // o endpoint já retorna { data, total }, então só repassamos
+      return { data: res.data || [], total: res.total || 0 };
+    },
+    { limit: 20 }
+  );
 
   return (
     <main className="bg-black text-white min-h-screen p-6">
@@ -71,33 +29,20 @@ export default function SearchContent() {
       {!loading && !error && results.length === 0 && <p>Nenhum mangá encontrado.</p>}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-        {results.map((manga) => {
-          const title = manga.title || "Sem título";
-          const coverUrl = manga.coverUrl || "";
+        {results.map((manga: any) => {
+          const title = manga.title || getTitle(manga.attributes);
+          const coverFileName =
+            manga.relationships?.find((r: any) => r.type === "cover_art")?.attributes?.fileName;
+          const coverUrl =
+            manga.coverUrl || buildCoverUrl(manga.id, coverFileName, 256, true);
 
           return (
-            <div
+            <MangaCard
               key={manga.id}
-              className="bg-[#241530] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform"
-              onClick={() => (window.location.href = `/manga/${manga.id}`)}
-            >
-              {coverUrl ? (
-                <img
-                  src={coverUrl}
-                  alt={title}
-                  className="w-full h-60 object-cover"
-                />
-              ) : (
-                <div className="w-full h-60 bg-purple-900 flex items-center justify-center text-sm text-gray-400">
-                  Sem capa
-                </div>
-              )}
-              <div className="p-3 text-center">
-                <h2 className="text-sm font-semibold line-clamp-2 text-white">
-                  {title}
-                </h2>
-              </div>
-            </div>
+              id={manga.id}
+              title={title}
+              coverUrl={coverUrl}
+            />
           );
         })}
       </div>
@@ -106,7 +51,7 @@ export default function SearchContent() {
 
       {!loading && hasMore && (
         <button
-          onClick={handleLoadMore}
+          onClick={loadMore}
           className="block mx-auto mt-8 px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition"
         >
           Carregar mais
