@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-type Params = { mangaId: string; fileName: string };
-
 // Cache simples em memória por processo
 const coverCache = new Map<string, ArrayBuffer>();
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Params }
+  context: { params: { mangaId: string; fileName: string } } // <- tipo inline correto
 ) {
   try {
-    const { mangaId, fileName } = params;
+    const { mangaId, fileName } = context.params;
     const { searchParams } = new URL(req.url);
 
     if (!mangaId || !fileName) {
@@ -33,7 +31,6 @@ export async function GET(
     }
 
     // Monta URL para MangaDex
-    // Se size === "" usamos o arquivo original; senão, thumbnail .{size}.jpg
     const upstreamUrl =
       size === ""
         ? `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`
@@ -41,16 +38,13 @@ export async function GET(
 
     const upstreamRes = await fetch(upstreamUrl, {
       headers: {
-        // MangaDex exige User-Agent
         "User-Agent": "NeonManga/0.1 (+https://example.com)",
-        // Aceite imagem
         "Accept": "image/*",
       },
-      // Importante: sem revalidate agressivo aqui – deixamos o cache HTTP fazer o trabalho
     });
 
     if (!upstreamRes.ok) {
-      // Fallback elegante: redireciona p/ uma imagem local
+      // Fallback elegante
       return NextResponse.redirect(new URL("/no-cover.jpg", req.url), 302);
     }
 
