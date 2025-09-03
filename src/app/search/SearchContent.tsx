@@ -13,8 +13,7 @@ export default function SearchContent() {
   const { results, loading, error, hasMore, loadMore } = usePaginatedSearch<any>(
     query,
     async (q, limit, offset) => {
-      const res = await searchManga(q, limit, offset);
-      // o endpoint já retorna { data, total }, então só repassamos
+      const res = await searchManga(q, limit, offset); // /api/search retorna { data, total }
       return { data: res.data || [], total: res.total || 0 };
     },
     { limit: 20 }
@@ -28,9 +27,11 @@ export default function SearchContent() {
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && results.length === 0 && <p>Nenhum mangá encontrado.</p>}
 
+      {/* Grid com card reutilizável */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
         {results.map((manga: any) => {
           const title = manga.title || getTitle(manga.attributes);
+          // se a API de busca já formatar coverUrl, usa; senão tenta relationship + proxy
           const coverFileName =
             manga.relationships?.find((r: any) => r.type === "cover_art")?.attributes?.fileName;
           const coverUrl =
