@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { getChapter } from "@/lib/api";
 
+const FALLBACK_SRC = "/no-page-fallback.jpg"; // opcional, senão cai no no-cover.jpg
+
 export default function Reader() {
   const { id } = useParams();
   const [pages, setPages] = useState<string[]>([]);
@@ -21,9 +23,8 @@ export default function Reader() {
       try {
         const data = await getChapter(id as string); // /api/chapter/[id]
         if (data?.baseUrl && data?.chapter) {
-          const urls = (data.chapter.data || []).map(
-            (file: string) => `${data.baseUrl}/data/${data.chapter.hash}/${file}`
-          );
+          const base = `${data.baseUrl}/data/${data.chapter.hash}`;
+          const urls = (data.chapter.data || []).map((file: string) => `${base}/${file}`);
           setPages(urls);
           setCurrentPage(0);
         } else {
@@ -56,6 +57,14 @@ export default function Reader() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
+
+  // fallback seguro para <img> (evita loop infinito)
+  const onImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const el = e.currentTarget;
+    if (el.dataset.fallbackApplied) return;
+    el.dataset.fallbackApplied = "1";
+    el.src = FALLBACK_SRC || "/no-cover.jpg";
+  };
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white flex flex-col items-center p-6">
@@ -108,6 +117,8 @@ export default function Reader() {
                 alt={`Página ${idx + 1}`}
                 className="w-full h-auto object-contain"
                 loading="lazy"
+                decoding="async"
+                onError={onImgError}
               />
             </div>
           ))}
@@ -122,13 +133,14 @@ export default function Reader() {
               src={pages[currentPage]}
               alt={`Página ${currentPage + 1}`}
               className="w-full h-auto object-contain"
+              onError={onImgError}
             />
           </div>
 
           <div className="flex items-center gap-4">
             <button
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 0))}
-              className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded"
+              className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded disabled:opacity-40"
               disabled={currentPage === 0}
             >
               ◀︎ Anterior
@@ -138,7 +150,7 @@ export default function Reader() {
             </div>
             <button
               onClick={() => setCurrentPage((p) => Math.min(p + 1, pages.length - 1))}
-              className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded"
+              className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded disabled:opacity-40"
               disabled={currentPage >= pages.length - 1}
             >
               Próxima ▶︎
