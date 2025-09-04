@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
-    const recentUrl = `https://api.mangadex.org/manga?includes[]=cover_art&limit=20&availableTranslatedLanguage[]=en&hasAvailableChapters=true&order[latestUploadedChapter]=desc`;
-    const popularUrl = `https://api.mangadex.org/manga?includes[]=cover_art&limit=20&availableTranslatedLanguage[]=en&hasAvailableChapters=true&order[followedCount]=desc`;
+    const recentUrl = `https://api.mangadex.org/manga?includes[]=cover_art&limit=20&availableTranslatedLanguage[]=en&hasAvailableChapters=true&order[latestUploadedChapter]=desc&contentRating[]=safe`;
+    const popularUrl = `https://api.mangadex.org/manga?includes[]=cover_art&limit=20&availableTranslatedLanguage[]=en&hasAvailableChapters=true&order[followedCount]=desc&contentRating[]=safe`;
 
     const [recentRes, popularRes] = await Promise.all([
       fetch(recentUrl),
