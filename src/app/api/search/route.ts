@@ -7,19 +7,34 @@ export async function GET(req: NextRequest) {
   const offset = searchParams.get("offset") || "0";
 
   try {
-    const url = `https://api.mangadex.org/manga?title=${encodeURIComponent(
-      title
-    )}&includes[]=cover_art&limit=${limit}&offset=${offset}&availableTranslatedLanguage[]=en&hasAvailableChapters=true`;
+    const url =
+      `https://api.mangadex.org/manga?title=${encodeURIComponent(title)}` +
+      `&includes[]=cover_art` +
+      `&limit=${limit}` +
+      `&offset=${offset}` +
+      `&availableTranslatedLanguage[]=en` + // adicione &availableTranslatedLanguage[]=pt-br se quiser
+      `&hasAvailableChapters=true` +
+      `&contentRating[]=safe`;
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Erro ao buscar dados da API do MangaDex");
+    const res = await fetch(url, {
+      headers: { "User-Agent": "NeonManga/0.1 (+https://example.com)" },
+      // cache: "no-store" // opcional em dev
+    });
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: "Erro ao buscar dados da API do MangaDex" },
+        { status: res.status }
+      );
+    }
 
     const data = await res.json();
 
     const formatted = (data.data || []).map((manga: any) => {
       const title =
-        manga.attributes.title.en ||
-        manga.attributes.title["ja-ro"] ||
+        manga.attributes?.title?.["pt-br"] ||
+        manga.attributes?.title?.en ||
+        manga.attributes?.title?.["ja-ro"] ||
         "Sem título";
 
       const coverRel = manga.relationships?.find(
@@ -28,19 +43,15 @@ export async function GET(req: NextRequest) {
       const coverFileName = coverRel?.attributes?.fileName || null;
 
       const coverUrl = coverFileName
-        ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}.256.jpg`
+        ? `/api/proxy-cover/${manga.id}/${coverFileName}?size=256` // PROXY para evitar CORS/hotlink
         : "/no-cover.jpg";
 
-      return {
-        id: manga.id,
-        title,
-        coverUrl,
-      };
+      return { id: manga.id, title, coverUrl };
     });
 
     return NextResponse.json({
       data: formatted,
-      total: data.total,
+      total: data.total ?? formatted.length,
     });
   } catch (error) {
     console.error("Erro API Search:", error);
